@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { FaWindowClose } from 'react-icons/fa';
 import { IconContext } from 'react-icons';
@@ -7,46 +7,38 @@ import s from './Modal.module.css';
 
 const modalRoot = document.querySelector('#modal-root');
 
-class Modal extends Component {
-  componentDidMount() {
-    window.addEventListener('keydown', this.handleModalClosureOnEsc);
-  }
+function Modal({ toggleModal, children }) {
+  useEffect(() => {
+    const handleModalClosureOnEsc = e => {
+      if (e.code === 'Escape') {
+        toggleModal();
+      }
+    };
+    window.addEventListener('keydown', handleModalClosureOnEsc);
+    return () => {
+      window.removeEventListener('keydown', handleModalClosureOnEsc);
+    };
+  });
 
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.handleModalClosureOnEsc);
-  }
-
-  handleModalClosureOnEsc = e => {
-    if (e.code === 'Escape') {
-      this.props.toggleModal();
-    }
-  };
-
-  handleBackdropClick = e => {
+  const handleBackdropClick = e => {
     if (e.target === e.currentTarget) {
-      this.props.toggleModal();
+      toggleModal();
     }
   };
 
-  handleBtnClick = () => {
-    this.props.toggleModal();
-  };
-
-  render() {
-    return createPortal(
-      <div className={s.backdrop} onClick={this.handleBackdropClick}>
-        <div className={s.content}>
-          <button className={s.closeIcon} onClick={this.handleBtnClick}>
-            <IconContext.Provider value={{ size: '36px' }}>
-              <FaWindowClose />
-            </IconContext.Provider>
-          </button>
-          {this.props.children}
-        </div>
-      </div>,
-      modalRoot,
-    );
-  }
+  return createPortal(
+    <div className={s.backdrop} onClick={handleBackdropClick}>
+      <div className={s.content}>
+        <button className={s.closeIcon} onClick={() => toggleModal()}>
+          <IconContext.Provider value={{ size: '36px' }}>
+            <FaWindowClose />
+          </IconContext.Provider>
+        </button>
+        {children}
+      </div>
+    </div>,
+    modalRoot,
+  );
 }
 
 export default Modal;
