@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { css } from '@emotion/core';
 import HashLoader from 'react-spinners/HashLoader';
@@ -10,6 +10,7 @@ import initialScreenPlaceholder from '../../images/initialScreenPlaceholder.jpg'
 import errorPlaceholder from '../../images/errorPlaceholder.jpg';
 import Modal from '../Modal';
 import ImageGallery from '../ImageGallery';
+import useStateWithLabel from '../../hooks/hooks';
 
 const Status = {
   IDLE: 'idle',
@@ -18,179 +19,176 @@ const Status = {
   REJECTED: 'rejected',
 };
 
-class ImageGalleryView extends Component {
-  state = {
-    images: null,
-    totalSearchResults: null,
-    error: null,
-    status: Status.IDLE,
-    modalIsOpen: false,
-    imageInModal: '',
-    activeImage: '',
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
+
+function ImageGalleryView({
+  searchQuery,
+  page,
+  resetSearchPage,
+  updateImageAvialability,
+}) {
+  const [images, setImages] = useStateWithLabel(null, 'images');
+  const [totalSearchResults, setTotalSearchResults] = useStateWithLabel(
+    null,
+    'totalSearchResults',
+  );
+  const [status, setStatus] = useStateWithLabel(Status.IDLE, 'status');
+  const [modalIsOpen, setModalIsOpen] = useStateWithLabel(false, 'modalIsOpen');
+  const [imageInModal, setImageInModal] = useStateWithLabel('', 'imageInModal');
+  const [activeImage, setActiveImage] = useStateWithLabel('', 'activeImage');
+
+  const prevQuery = usePrevious(searchQuery);
+
+  useEffect(() => {
+    if (prevQuery !== searchQuery && searchQuery !== '') {
+      resetSearchPage();
+      setStatus(Status.PENDING);
+
+      imageAPI
+        .fetchImages(searchQuery)
+        .then(images => {
+          console.log(images);
+          if (images.totalHits === 0) {
+            toast.error(
+              `No images for ${searchQuery}. Please try another query.`,
+            );
+            setStatus(Status.REJECTED);
+            return;
+          }
+          if (images.hits.length === 0) {
+            toast.error(
+              `Oops! Pixabay failed us and forgot to send images. Please refresh page & try again.`,
+            );
+            setStatus(Status.REJECTED);
+            return;
+          }
+          setImages(images.hits);
+          setTotalSearchResults(images.totalHits);
+          setStatus(Status.RESOLVED);
+        })
+        .catch(error => {
+          setStatus(Status.REJECTED);
+        });
+    }
+  }, [
+    prevQuery,
+    resetSearchPage,
+    searchQuery,
+    setImages,
+    setStatus,
+    setTotalSearchResults,
+    updateImageAvialability,
+  ]);
+
+  useEffect(() => {
+    if (images && status === Status.RESOLVED) {
+      const result = totalSearchResults > images.length ? true : false;
+      updateImageAvialability(result);
+    } else {
+      updateImageAvialability(false);
+    }
+  }, [images, status, totalSearchResults, updateImageAvialability]);
+
+  const prevPage = usePrevious(page);
+
+  useEffect(() => {
+    if (prevPage < page) {
+      imageAPI
+        .fetchImages(searchQuery, page)
+        .then(images => {
+          setImages(state => {
+            return [...state, ...images.hits];
+          });
+        })
+        .catch(error => {
+          setStatus(Status.REJECTED);
+        })
+        .finally(data => {
+          window.scrollTo({
+            top: document.documentElement.scrollHeight - 1300,
+            behavior: 'smooth',
+          });
+        });
+    }
+  }, [
+    page,
+    prevPage,
+    searchQuery,
+    setImages,
+    setStatus,
+    updateImageAvialability,
+  ]);
+
+  const toggleModal = () => {
+    setModalIsOpen(state => !state);
+    setImageInModal('');
+    setActiveImage('');
   };
 
-  componentDidUpdate(prevProps) {
-    const prevQuery = prevProps.searchQuery;
-    const nextQuery = this.props.searchQuery;
-    const prevPage = prevProps.page;
-    const nextPage = this.props.page;
+  const showBigImageInModal = e => {
+    toggleModal();
+    setImageInModal(state => (state ? '' : e.target.dataset.image));
+    setActiveImage(state => (state ? '' : e.target.src));
+  };
 
-    if (prevQuery !== nextQuery) {
-      this.renderNewSearchQuery(nextQuery, nextPage);
-    }
-
-    if (prevPage !== nextPage && prevPage < nextPage) {
-      this.renderMorePages(nextQuery, nextPage);
-    }
+  if (status === Status.IDLE) {
+    return (
+      <div>
+        <img src={initialScreenPlaceholder} alt="please enter a query" />
+      </div>
+    );
   }
 
-  updateImageAvialability = () => {
-    if (this.state.images) {
-      const result =
-        this.state.totalSearchResults > this.state.images.length ? true : false;
-      this.props.updateImageAvialability(result);
-    } else {
-      this.props.updateImageAvialability(false);
-    }
-  };
+  if (status === Status.PENDING) {
+    return (
+      <HashLoader
+        css={css`
+          margin-top: 80px;
+        `}
+        size={250}
+        color={'orange'}
+        loading={true}
+      />
+    );
+  }
 
-  renderNewSearchQuery = (nextQuery, nextPage) => {
-    this.props.resetSearchPage();
-    this.setState({ images: null, status: Status.PENDING });
-    this.props.updateImageAvialability(false);
+  if (status === Status.REJECTED) {
+    return (
+      <div>
+        <img src={errorPlaceholder} alt="error" />
+      </div>
+    );
+  }
 
-    imageAPI
-      .fetchImages(nextQuery, nextPage)
-      .then(images => {
-        console.log(images);
-        if (images.totalHits === 0) {
-          toast.error(`No images for ${nextQuery}. Please try another query.`);
-          this.setState({
-            status: Status.REJECTED,
-          });
-
-          return;
-        }
-        if (images.hits.length === 0) {
-          toast.error(
-            `Oops! Pixabay failed us and forgot to send images. Please refresh page & try again.`,
-          );
-          this.setState({
-            status: Status.REJECTED,
-          });
-
-          return;
-        }
-        this.setState({
-          images: images.hits,
-          totalSearchResults: images.totalHits,
-          status: Status.RESOLVED,
-        });
-      })
-      .catch(error => this.setState({ error, status: Status.REJECTED }))
-      .finally(data => {
-        this.updateImageAvialability();
-      });
-  };
-
-  renderMorePages = (nextQuery, nextPage) => {
-    this.props.updateImageAvialability(false);
-
-    imageAPI
-      .fetchImages(nextQuery, nextPage)
-      .then(images => {
-        this.setState(prevState => ({
-          images: [...prevState.images, ...images.hits],
-        }));
-      })
-      .catch(error => this.setState({ error, status: Status.REJECTED }))
-      .finally(data => {
-        window.scrollTo({
-          top: document.documentElement.scrollHeight - 1300,
-          behavior: 'smooth',
-        });
-        this.updateImageAvialability();
-      });
-  };
-
-  toggleModal = () => {
-    this.setState(prevState => ({
-      modalIsOpen: !prevState.modalIsOpen,
-      imageInModal: '',
-      activeImage: '',
-    }));
-  };
-
-  showBigImageInModal = e => {
-    this.toggleModal();
-    this.setState(prevState => ({
-      imageInModal: prevState.imageInModal ? '' : e.target.dataset.image,
-      activeImage: prevState.activeImage ? '' : e.target.src,
-    }));
-  };
-
-  render() {
-    const {
-      status,
-      modalIsOpen,
-      imageInModal,
-      activeImage,
-      images,
-    } = this.state;
-
-    if (status === Status.IDLE) {
-      return (
-        <div>
-          <img src={initialScreenPlaceholder} alt="please enter a query" />
-        </div>
-      );
-    }
-
-    if (status === Status.PENDING) {
-      return (
-        <HashLoader
-          css={css`
-            margin-top: 80px;
-          `}
-          size={250}
-          color={'orange'}
-          loading={true}
+  if (status === Status.RESOLVED) {
+    return (
+      <>
+        <ImageGallery
+          images={images}
+          showBigImageInModal={showBigImageInModal}
         />
-      );
-    }
-
-    if (status === Status.REJECTED) {
-      return (
-        <div>
-          <img src={errorPlaceholder} alt="error" />
-        </div>
-      );
-    }
-
-    if (status === Status.RESOLVED) {
-      return (
-        <>
-          <ImageGallery
-            images={images}
-            showBigImageInModal={this.showBigImageInModal}
-          />
-          {modalIsOpen && (
-            <Modal toggleModal={this.toggleModal}>
-              <ProgressiveImage src={imageInModal} placeholder={activeImage}>
-                {(src, loading) => (
-                  <img
-                    style={{ opacity: loading ? 0.5 : 1 }}
-                    src={src}
-                    alt=""
-                    className={s.image}
-                  />
-                )}
-              </ProgressiveImage>
-            </Modal>
-          )}
-        </>
-      );
-    }
+        {modalIsOpen && (
+          <Modal toggleModal={toggleModal}>
+            <ProgressiveImage src={imageInModal} placeholder={activeImage}>
+              {(src, loading) => (
+                <img
+                  style={{ opacity: loading ? 0.5 : 1 }}
+                  src={src}
+                  alt=""
+                  className={s.image}
+                />
+              )}
+            </ProgressiveImage>
+          </Modal>
+        )}
+      </>
+    );
   }
 }
 

@@ -1,13 +1,13 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import { FiSearch } from 'react-icons/fi';
 import { IconContext } from 'react-icons';
 import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
-
+import useStateWithLabel from '../../hooks/hooks';
 import s from './Searchbar.module.css';
 
 function Searchbar({ getSearchQuery }) {
-  const [value, setValue] = useState('');
+  const [value, setValue] = useStateWithLabel('', 'value');
 
   const btn = useRef(null);
 

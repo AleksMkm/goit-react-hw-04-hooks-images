@@ -1,15 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Container from './Components/Container';
 import Searchbar from './Components/Searchbar';
 import Button from './Components/Button';
 import ImageGalleryView from './Components/ImageGalleryView';
+import useStateWithLabel from './hooks/hooks';
 
 function App() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchPage, setSearchPage] = useState(1);
-  const [moreImagesAvailable, setMoreImagesAvailable] = useState(false);
+  const [searchQuery, setSearchQuery] = useStateWithLabel('', 'searchQuery');
+  const [searchPage, setSearchPage] = useStateWithLabel(1, 'searchPage');
+  const [moreImagesAvailable, setMoreImagesAvailable] = useStateWithLabel(
+    false,
+    'moreImagesAvailable',
+  );
 
   return (
     <Container>
