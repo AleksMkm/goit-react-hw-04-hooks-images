@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Container from './Components/Container';
@@ -6,48 +6,70 @@ import Searchbar from './Components/Searchbar';
 import Button from './Components/Button';
 import ImageGalleryView from './Components/ImageGalleryView';
 
-class App extends Component {
-  state = {
-    searchQuery: '',
-    searchPage: 1,
-    moreImagesAvailable: false,
-  };
+function App() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchPage, setSearchPage] = useState(1);
+  const [moreImagesAvailable, setMoreImagesAvailable] = useState(false);
 
-  getSearchQuery = query => {
-    this.setState({ searchQuery: query });
-  };
-
-  updateSearchPage = () => {
-    this.setState(prevState => ({ searchPage: prevState.searchPage + 1 }));
-  };
-
-  resetSearchPage = () => {
-    this.setState({ searchPage: 1 });
-  };
-
-  updateImageAvialability = status => {
-    this.setState({ moreImagesAvailable: status });
-  };
-
-  render() {
-    const { searchQuery, searchPage, moreImagesAvailable } = this.state;
-
-    return (
-      <Container>
-        <Searchbar getSearchQuery={this.getSearchQuery} />
-        <ImageGalleryView
-          searchQuery={searchQuery}
-          page={searchPage}
-          resetSearchPage={this.resetSearchPage}
-          updateImageAvialability={this.updateImageAvialability}
-        />
-        {moreImagesAvailable && (
-          <Button updateSearchPage={this.updateSearchPage} />
-        )}
-        <ToastContainer autoClose={3000} />
-      </Container>
-    );
-  }
+  return (
+    <Container>
+      <Searchbar getSearchQuery={query => setSearchQuery(query)} />
+      <ImageGalleryView
+        searchQuery={searchQuery}
+        page={searchPage}
+        resetSearchPage={() => setSearchPage(1)}
+        updateImageAvialability={status => setMoreImagesAvailable(status)}
+      />
+      {moreImagesAvailable && (
+        <Button updateSearchPage={() => setSearchPage(state => state + 1)} />
+      )}
+      <ToastContainer autoClose={3000} />
+    </Container>
+  );
 }
+
+// class App extends Component {
+//   state = {
+//     searchQuery: '',
+//     searchPage: 1,
+//     moreImagesAvailable: false,
+//   };
+
+//   getSearchQuery = query => {
+//     this.setState({ searchQuery: query });
+//   };
+
+//   updateSearchPage = () => {
+//     this.setState(prevState => ({ searchPage: prevState.searchPage + 1 }));
+//   };
+
+//   resetSearchPage = () => {
+//     this.setState({ searchPage: 1 });
+//   };
+
+//   updateImageAvialability = status => {
+//     this.setState({ moreImagesAvailable: status });
+//   };
+
+//   render() {
+//     const { searchQuery, searchPage, moreImagesAvailable } = this.state;
+
+//     return (
+//       <Container>
+//         <Searchbar getSearchQuery={this.getSearchQuery} />
+//         <ImageGalleryView
+//           searchQuery={searchQuery}
+//           page={searchPage}
+//           resetSearchPage={this.resetSearchPage}
+//           updateImageAvialability={this.updateImageAvialability}
+//         />
+//         {moreImagesAvailable && (
+//           <Button updateSearchPage={this.updateSearchPage} />
+//         )}
+//         <ToastContainer autoClose={3000} />
+//       </Container>
+//     );
+//   }
+// }
 
 export default App;
