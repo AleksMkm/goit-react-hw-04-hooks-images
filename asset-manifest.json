@@ -1,0 +1,27 @@
+{
+  "files": {
+    "main.css": "/goit-react-hw-04-hooks-images/static/css/main.66e8b778.chunk.css",
+    "main.js": "/goit-react-hw-04-hooks-images/static/js/main.1b69af3c.chunk.js",
+    "main.js.map": "/goit-react-hw-04-hooks-images/static/js/main.1b69af3c.chunk.js.map",
+    "runtime-main.js": "/goit-react-hw-04-hooks-images/static/js/runtime-main.b5bfae95.js",
+    "runtime-main.js.map": "/goit-react-hw-04-hooks-images/static/js/runtime-main.b5bfae95.js.map",
+    "static/css/2.ccc6f86f.chunk.css": "/goit-react-hw-04-hooks-images/static/css/2.ccc6f86f.chunk.css",
+    "static/js/2.a437cc5d.chunk.js": "/goit-react-hw-04-hooks-images/static/js/2.a437cc5d.chunk.js",
+    "static/js/2.a437cc5d.chunk.js.map": "/goit-react-hw-04-hooks-images/static/js/2.a437cc5d.chunk.js.map",
+    "static/js/3.5fc8e287.chunk.js": "/goit-react-hw-04-hooks-images/static/js/3.5fc8e287.chunk.js",
+    "static/js/3.5fc8e287.chunk.js.map": "/goit-react-hw-04-hooks-images/static/js/3.5fc8e287.chunk.js.map",
+    "index.html": "/goit-react-hw-04-hooks-images/index.html",
+    "static/css/2.ccc6f86f.chunk.css.map": "/goit-react-hw-04-hooks-images/static/css/2.ccc6f86f.chunk.css.map",
+    "static/css/main.66e8b778.chunk.css.map": "/goit-react-hw-04-hooks-images/static/css/main.66e8b778.chunk.css.map",
+    "static/js/2.a437cc5d.chunk.js.LICENSE.txt": "/goit-react-hw-04-hooks-images/static/js/2.a437cc5d.chunk.js.LICENSE.txt",
+    "static/media/errorPlaceholder.c80120ff.jpg": "/goit-react-hw-04-hooks-images/static/media/errorPlaceholder.c80120ff.jpg",
+    "static/media/initialScreenPlaceholder.7edde63a.jpg": "/goit-react-hw-04-hooks-images/static/media/initialScreenPlaceholder.7edde63a.jpg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.b5bfae95.js",
+    "static/css/2.ccc6f86f.chunk.css",
+    "static/js/2.a437cc5d.chunk.js",
+    "static/css/main.66e8b778.chunk.css",
+    "static/js/main.1b69af3c.chunk.js"
+  ]
+}
