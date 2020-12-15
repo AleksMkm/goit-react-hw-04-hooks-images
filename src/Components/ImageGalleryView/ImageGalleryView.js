@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { css } from '@emotion/core';
 import HashLoader from 'react-spinners/HashLoader';
@@ -10,7 +10,7 @@ import initialScreenPlaceholder from '../../images/initialScreenPlaceholder.jpg'
 import errorPlaceholder from '../../images/errorPlaceholder.jpg';
 import Modal from '../Modal';
 import ImageGallery from '../ImageGallery';
-import useStateWithLabel from '../../hooks/hooks';
+import customHooks from '../../hooks/hooks.js';
 
 const Status = {
   IDLE: 'idle',
@@ -19,13 +19,7 @@ const Status = {
   REJECTED: 'rejected',
 };
 
-function usePrevious(value) {
-  const ref = useRef();
-  useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
-}
+const { useStateWithLabel, usePrevious } = customHooks;
 
 function ImageGalleryView({
   searchQuery,

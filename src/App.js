@@ -5,7 +5,9 @@ import Container from './Components/Container';
 import Searchbar from './Components/Searchbar';
 import Button from './Components/Button';
 import ImageGalleryView from './Components/ImageGalleryView';
-import useStateWithLabel from './hooks/hooks';
+import customHooks from './hooks/hooks';
+
+const { useStateWithLabel } = customHooks;
 
 function App() {
   const [searchQuery, setSearchQuery] = useStateWithLabel('', 'searchQuery');

@@ -3,8 +3,10 @@ import { FiSearch } from 'react-icons/fi';
 import { IconContext } from 'react-icons';
 import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
-import useStateWithLabel from '../../hooks/hooks';
+import customHooks from '../../hooks/hooks.js';
 import s from './Searchbar.module.css';
+
+const { useStateWithLabel } = customHooks;
 
 function Searchbar({ getSearchQuery }) {
   const [value, setValue] = useStateWithLabel('', 'value');
